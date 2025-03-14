@@ -32,8 +32,8 @@ class TransactionImport implements ToModel, WithHeadingRow
         return new Transaction([
             'date' => $row['date'],
             'type' => $row['type'],
-            'account_id' => $row['account_id'],
-            'category_id' => $row['category_id'],
+            'account_id' => (int)$row['account_id'],
+            'category_id' => (int)$row['category_id'],
             'amount' => $row['amount'],
             'descriptions' => $row['descriptions'],
             'user_id' => auth()->id(),

@@ -19,38 +19,101 @@
 @section('content')
     <!--begin::Row-->
     <div class="row">
-        <div class="col-12">
-            <!-- Default box -->
+        <div class="col-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Title</h3>
-                    <div class="card-tools">
-                        <button
-                                type="button"
-                                class="btn btn-tool"
-                                data-lte-toggle="card-collapse"
-                                title="Collapse"
-                        >
-                            <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-                            <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-                        </button>
-                        <button
-                                type="button"
-                                class="btn btn-tool"
-                                data-lte-toggle="card-remove"
-                                title="Remove"
-                        >
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
+                    <h3 class="card-title">Grafik Saldo per Akun</h3>
                 </div>
-                <div class="card-body">Start creating your amazing application!</div>
-                <!-- /.card-body -->
-                <div class="card-footer">Footer</div>
-                <!-- /.card-footer-->
+                <div class="card-body">
+                    <canvas id="balanceChart"></canvas>
+                    <p class="mt-3">Total Saldo: <strong>Rp {{ number_format($totalBalance, 2, ',', '.') }}</strong></p>
+                </div>
             </div>
-            <!-- /.card -->
+        </div>
+
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Grafik Rincian Pengeluaran</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
     <!--end::Row-->
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartData = JSON.parse('{!! $chartData !!}');
+
+        const ctx = document.getElementById('balanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    data: chartData.data,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+
+    <script>
+        const expenseData = JSON.parse('{!! $chartExpenseData !!}');
+
+        const ctxExpense = document.getElementById('expenseChart').getContext('2d');
+        new Chart(ctxExpense, {
+            type: 'doughnut',
+            data: {
+                labels: expenseData.labels,
+                datasets: [{
+                    data: expenseData.data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 205, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(201, 203, 207, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 205, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(201, 203, 207, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+@endpush
