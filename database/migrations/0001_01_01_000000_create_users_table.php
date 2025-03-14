@@ -35,6 +35,53 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('accounts', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->text('descriptions')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->enum('type', ['pemasukan', 'pengeluaran', 'pindah'])->default('pengeluaran');
+            $table->text('descriptions')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('transactions', function (Blueprint $table) {
+            $table->id();
+            $table->date('date');
+            $table->enum('type', ['pemasukan', 'pengeluaran', 'pindah'])->default('pengeluaran');
+            $table->foreignId('account_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('target_account_id')->nullable()->constrained('accounts')->onDelete('cascade')->onUpdate('cascade');
+            $table->decimal('amount', 15, 2);
+            $table->string('descriptions')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->decimal('balance_after', 15, 2);
+            $table->timestamps();
+        });
+
+        Schema::create('balances', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('account_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->decimal('balance', 15, 2);
+            $table->timestamp('updated_at');
+        });
+
+        Schema::create('reports', function (Blueprint $table) {
+            $table->id();
+            $table->enum('type', ['harian', 'bulanan', 'tahunan', 'keseluruhan']);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->decimal('total_income', 15, 2);
+            $table->decimal('total_expense', 15, 2);
+            $table->decimal('net_balance', 15, 2);
+            $table->timestamp('created_at');
+        });
     }
 
     /**
@@ -45,5 +92,10 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('accounts');
+        Schema::dropIfExists('categories');
+        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('balances');
+        Schema::dropIfExists('reports');
     }
 };
