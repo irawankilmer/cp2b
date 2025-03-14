@@ -101,14 +101,14 @@
                 >
 
                     <li class="nav-item">
-                        <a href="{{ route('dashboard') }}" class="nav-link active">
+                        <a href="{{ route('dashboard') }}" class="nav-link {{ setActive(['dashboard']) }}">
                             <i class="nav-icon bi bi-speedometer"></i>
                             <p>Dashboard</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="#" class="nav-link active" id="logout-btn">
+                        <a href="#" class="nav-link" id="logout-btn">
                             <i class="nav-icon bi bi-box-arrow-right"></i>
                             <p>Logout</p>
                         </a>
