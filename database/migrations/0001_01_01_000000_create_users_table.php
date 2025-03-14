@@ -69,18 +69,38 @@ return new class extends Migration
             $table->id();
             $table->foreignId('account_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->decimal('balance', 15, 2);
-            $table->timestamp('updated_at');
+            $table->timestamps();
         });
 
-        Schema::create('reports', function (Blueprint $table) {
+        Schema::create('daily_reports', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['harian', 'bulanan', 'tahunan', 'keseluruhan']);
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->date('date');
             $table->decimal('total_income', 15, 2);
             $table->decimal('total_expense', 15, 2);
             $table->decimal('net_balance', 15, 2);
-            $table->timestamp('created_at');
+            $table->json('details');
+            $table->timestamps();
+        });
+
+        Schema::create('monthly_reports', function (Blueprint $table) {
+            $table->id();
+            $table->string('month');
+            $table->year('year');
+            $table->decimal('total_income', 15, 2);
+            $table->decimal('total_expense', 15, 2);
+            $table->decimal('net_balance', 15, 2);
+            $table->json('details');
+            $table->timestamps();
+        });
+
+        Schema::create('yearly_reports', function (Blueprint $table) {
+            $table->id();
+            $table->year('year');
+            $table->decimal('total_income', 15, 2);
+            $table->decimal('total_expense', 15, 2);
+            $table->decimal('net_balance', 15, 2);
+            $table->json('details');
+            $table->timestamps();
         });
     }
 
@@ -96,6 +116,8 @@ return new class extends Migration
         Schema::dropIfExists('categories');
         Schema::dropIfExists('transactions');
         Schema::dropIfExists('balances');
-        Schema::dropIfExists('reports');
+        Schema::dropIfExists('yearly_reports');
+        Schema::dropIfExists('monthly_reports');
+        Schema::dropIfExists('daily_reports');
     }
 };

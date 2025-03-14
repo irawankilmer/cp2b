@@ -108,6 +108,13 @@
                     </li>
 
                     <li class="nav-item">
+                        <a href="{{ route('transaksi') }}" class="nav-link {{ setActive(['transaksi']) }}">
+                            <i class="nav-icon bi bi-cash-coin"></i>
+                            <p>Transaksi</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="#" class="nav-link" id="logout-btn">
                             <i class="nav-icon bi bi-box-arrow-right"></i>
                             <p>Logout</p>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group( function() {
@@ -12,4 +13,13 @@ Route::controller(LoginController::class)->group( function() {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::controller(TransactionController::class)->group( function() {
+        Route::get('/transaksi', 'index')->name('transaksi');
+        Route::get('/transaksi/create', 'create')->name('transaksi.create');
+        Route::post('/transaksi', 'store')->name('transaksi.store');
+
+        Route::get('/transaksi/import', 'import')->name('transaksi.import');
+        Route::post('/transaksi/import', 'importstore')->name('transaksi.importStore');
+    });
 });
