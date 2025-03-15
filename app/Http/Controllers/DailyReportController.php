@@ -102,12 +102,43 @@ class DailyReportController extends Controller
         $chartPieDataPemasukan = $piechartdata->where('type', 'pemasukan')->pluck('total_amount', 'category.name');
         $chartPieDataPengeluaran = $piechartdata->where('type', 'pengeluaran')->pluck('total_amount', 'category.name');
 
+        $incomeData = Transaction::whereDate('date', $date)
+            ->where('type', 'pemasukan')
+            ->selectRaw('HOUR(created_at) as hour, SUM(amount) as total')
+            ->groupBy('hour')
+            ->orderBy('hour', 'asc')
+            ->get();
+
+        $expenseData = Transaction::whereDate('date', $date)
+            ->where('type', 'pengeluaran')
+            ->selectRaw('HOUR(created_at) as hour, SUM(amount) as total')
+            ->groupBy('hour')
+            ->orderBy('hour', 'asc')
+            ->get();
+
+        $totalIncome = $incomeData->sum('total');
+        $totalExpense = $expenseData->sum('total');
+
+        $incomeChart = [
+            'labels' => $incomeData->pluck('hour')->map(fn($h) => $h . ':00')->toArray(),
+            'data' => $incomeData->pluck('total')->toArray()
+        ];
+
+        $expenseChart = [
+            'labels' => $expenseData->pluck('hour')->map(fn($h) => $h . ':00')->toArray(),
+            'data' => $expenseData->pluck('total')->toArray()
+        ];
+
 
         return view('bulansekarang.detail', [
             'transactions'  => $transactions,
             'hari'          => Carbon::parse($date)->translatedFormat('l, d F Y'),
             'chartpiedatapemasukan' => $chartPieDataPemasukan,
-            'chartpiedatapengeluaran' => $chartPieDataPengeluaran
+            'chartpiedatapengeluaran' => $chartPieDataPengeluaran,
+            'incomeChart'   => $incomeChart,
+            'expenseChart'  => $expenseChart,
+            'totalIncome'   => $totalIncome,
+            'totalExpense'  => $totalExpense,
         ]);
     }
 

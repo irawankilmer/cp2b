@@ -59,6 +59,9 @@
     <div class="row mt-3">
         <div class="col-md-6">
             <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Pemasukan: Rp {{ number_format($totalIncome, 2, ',', '.') }}</h3>
+                </div>
                 <div class="card-body">
                     <canvas id="incomeChart"></canvas>
                 </div>
@@ -67,6 +70,9 @@
 
         <div class="col-md-6">
             <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Pengeluaran: Rp {{ number_format($totalExpense, 2, ',', '.') }}</h3>
+                </div>
                 <div class="card-body">
                     <canvas id="expenseChart"></canvas>
                 </div>
@@ -143,6 +149,57 @@
                         'rgba(75, 192, 192, 0.5)'
                     ]
                 }]
+            }
+        });
+    </script>
+
+    <script>
+        const incomeChartData = JSON.parse('{!! json_encode($incomeChart) !!}');
+        const expenseChartData = JSON.parse('{!! json_encode($expenseChart) !!}');
+
+        const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+        new Chart(incomeCtx, {
+            type: 'line',
+            data: {
+                labels: incomeChartData.labels,
+                datasets: [{
+                    label: 'Pemasukan',
+                    data: incomeChartData.data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+        new Chart(expenseCtx, {
+            type: 'line',
+            data: {
+                labels: expenseChartData.labels,
+                datasets: [{
+                    label: 'Pengeluaran',
+                    data: expenseChartData.data,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
             }
         });
     </script>
