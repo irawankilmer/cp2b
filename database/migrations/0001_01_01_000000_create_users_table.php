@@ -71,37 +71,6 @@ return new class extends Migration
             $table->decimal('balance', 15, 2);
             $table->timestamps();
         });
-
-        Schema::create('daily_reports', function (Blueprint $table) {
-            $table->id();
-            $table->date('date');
-            $table->decimal('total_income', 15, 2);
-            $table->decimal('total_expense', 15, 2);
-            $table->decimal('net_balance', 15, 2);
-            $table->json('details');
-            $table->timestamps();
-        });
-
-        Schema::create('monthly_reports', function (Blueprint $table) {
-            $table->id();
-            $table->string('month');
-            $table->year('year');
-            $table->decimal('total_income', 15, 2);
-            $table->decimal('total_expense', 15, 2);
-            $table->decimal('net_balance', 15, 2);
-            $table->json('details');
-            $table->timestamps();
-        });
-
-        Schema::create('yearly_reports', function (Blueprint $table) {
-            $table->id();
-            $table->year('year');
-            $table->decimal('total_income', 15, 2);
-            $table->decimal('total_expense', 15, 2);
-            $table->decimal('net_balance', 15, 2);
-            $table->json('details');
-            $table->timestamps();
-        });
     }
 
     /**
@@ -116,8 +85,5 @@ return new class extends Migration
         Schema::dropIfExists('categories');
         Schema::dropIfExists('transactions');
         Schema::dropIfExists('balances');
-        Schema::dropIfExists('yearly_reports');
-        Schema::dropIfExists('monthly_reports');
-        Schema::dropIfExists('daily_reports');
     }
 };

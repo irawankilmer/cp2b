@@ -19,7 +19,7 @@
             <!-- Default box -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Transaksi Hari Ini: <span class="badge bg-info">{{ $hari }}</span></h3>
+                    <h3 class="card-title">Transaksi Hari Ini: {{ $hari }}</h3>
                     <div class="ms-auto">
                         <a href="{{ route('transaksi.import') }}" class="btn btn-primary btn-sm">
                             <i class="bi bi-upload"></i>
@@ -63,9 +63,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- /.card-body -->
-                <div class="card-footer">Footer</div>
-                <!-- /.card-footer-->
             </div>
             <!-- /.card -->
         </div>

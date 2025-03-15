@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\TransactionController;
@@ -21,5 +22,10 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/transaksi/import', 'import')->name('transaksi.import');
         Route::post('/transaksi/import', 'importstore')->name('transaksi.importStore');
+    });
+
+    Route::controller(DailyReportController::class)->group( function() {
+        Route::get('/bulansekarang', 'sekarang')->name('bulansekarang');
+        Route::get('/bulansekarang/{date}', 'detail')->name('bulansekarang.detail');
     });
 });

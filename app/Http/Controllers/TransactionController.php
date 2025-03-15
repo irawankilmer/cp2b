@@ -25,6 +25,7 @@ class TransactionController extends Controller
 
         $transactions = Transaction::with('account', 'category', 'user')
             ->whereDate('date', today())
+            ->orderByDesc('created_at')
             ->get();
 
         return view('transaksi.index', [
