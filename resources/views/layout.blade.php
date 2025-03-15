@@ -190,18 +190,23 @@
     </main>
     <!--end::App Main-->
     <!--begin::Footer-->
-    <footer class="app-footer">
-        <!--begin::To the end-->
-        <div class="float-end d-none d-sm-inline">Ghania Jilbi Corps</div>
-        <!--end::To the end-->
-        <!--begin::Copyright-->
-        <strong>
-            Copyright &copy; 2014-2025&nbsp;
-            <a href="https://github.com/irawankilmer" class="text-decoration-none">irawankilmer</a>.
-        </strong>
-        All rights reserved.
-        <!--end::Copyright-->
-    </footer>
+    <footer class="app-footer py-3 bg-light">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12 col-md-6 text-center text-md-start mb-2 mb-md-0">
+              <strong>
+                Copyright &copy; 2014-2025&nbsp;
+                <a href="https://github.com/irawankilmer" class="text-decoration-none">irawankilmer</a>.
+              </strong>
+              All rights reserved.
+            </div>
+            <div class="col-12 col-md-6 text-center text-md-end">
+              Ghania Jilbi Corps
+            </div>
+          </div>
+        </div>
+      </footer>
+      
     <!--end::Footer-->
 </div>
 <!--end::App Wrapper-->
