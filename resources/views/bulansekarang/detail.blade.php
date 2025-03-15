@@ -22,32 +22,34 @@
                     <h3 class="card-title">Laporan Hari Ini: {{ $hari }}</h3>
                 </div>
                 <div class="card-body">
-                    <table id="transactions-table" class="table table-bordered table-striped">
-                        <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Jenis</th>
-                            <th>Akun</th>
-                            <th>Kategori</th>
-                            <th>Jumlah</th>
-                            <th>Deskripsi</th>
-                            <th>Saldo Setelah</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($transactions as $transaction)
+                    <div class="table-responsive">
+                        <table id="transactions-table" class="table table-bordered table-striped">
+                            <thead>
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $transaction->type }}</td>
-                                <td>{{ $transaction->account->name }}</td>
-                                <td>{{ $transaction->category->name }}</td>
-                                <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
-                                <td>{{ $transaction->descriptions }}</td>
-                                <td>{{ 'Rp ' . number_format($transaction->balance_after, 2, ',', '.') }}</td>
+                                <th>No</th>
+                                <th>Jenis</th>
+                                <th>Akun</th>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                                <th>Deskripsi</th>
+                                <th>Saldo Setelah</th>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            @foreach($transactions as $transaction)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $transaction->type }}</td>
+                                    <td>{{ $transaction->account->name }}</td>
+                                    <td>{{ $transaction->category->name }}</td>
+                                    <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
+                                    <td>{{ $transaction->descriptions }}</td>
+                                    <td>{{ 'Rp ' . number_format($transaction->balance_after, 2, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <!-- /.card -->

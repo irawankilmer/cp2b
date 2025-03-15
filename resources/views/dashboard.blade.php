@@ -5,11 +5,11 @@
 @section('breadcumb')
     <!--begin::Row-->
     <div class="row">
-        <div class="col-sm-6"><h3 class="mb-0">Collapsed Sidebar</h3></div>
+        <div class="col-sm-6"><h3 class="mb-0">Dashboard</h3></div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Collapsed Sidebar</li>
+                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
             </ol>
         </div>
     </div>
@@ -19,7 +19,7 @@
 @section('content')
     <!--begin::Row-->
     <div class="row">
-        <div class="col-4">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Grafik Saldo per Akun</h3>
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div class="col-4">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Grafik Rincian Pengeluaran</h3>

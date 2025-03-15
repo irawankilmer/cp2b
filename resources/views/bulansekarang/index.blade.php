@@ -22,31 +22,33 @@
                     <h3 class="card-title">Laporan Bulan: {{ $month }}</h3>
                 </div>
                 <div class="card-body">
-                    <table id="bulansekarang-table" class="table table-bordered table-striped">
-                        <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Pemasukan</th>
-                            <th>Pengeluaran</th>
-                            <th>Saldo Bersih</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($formattedReports as $report)
+                    <div class="table-responsive">
+                        <table id="bulansekarang-table" class="table table-bordered table-striped">
+                            <thead>
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <a href="{{ route('bulansekarang.detail', ['date' => \Carbon\Carbon::parse(convertToEnglishDate($report['day']))->format('Y-m-d')]) }}">
-                                        {{ $report['day'] }}
-                                    </a></td>
-                                <td>Rp {{ number_format($report['income'], 2, ',', '.') }}</td>
-                                <td>Rp {{ number_format($report['expense'], 2, ',', '.') }}</td>
-                                <td>Rp {{ number_format($report['net_balance'], 2, ',', '.') }}</td>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Pemasukan</th>
+                                <th>Pengeluaran</th>
+                                <th>Saldo Bersih</th>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            @foreach($formattedReports as $report)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <a href="{{ route('bulansekarang.detail', ['date' => \Carbon\Carbon::parse(convertToEnglishDate($report['day']))->format('Y-m-d')]) }}">
+                                            {{ $report['day'] }}
+                                        </a></td>
+                                    <td>Rp {{ number_format($report['income'], 2, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($report['expense'], 2, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($report['net_balance'], 2, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <!-- /.card -->
