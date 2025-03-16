@@ -23,7 +23,7 @@
                 </div>
                 <div class="card-body">
 
-                    <form method="POST" action="{{ route('transaksi.store') }}">
+                    <form method="POST" action="{{ route('transaksi.store') }}" onsubmit="disableSubmitButton()">
                         @csrf
                         <div class="mb-3">
                             <label for="date" class="form-label">Tanggal</label>
@@ -77,9 +77,10 @@
                             <input type="text" class="form-control" id="descriptions" name="descriptions">
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
                             <i class="bi bi-floppy"></i>
-                            Simpan Transaksi
+                            <span id="button-text">Simpan Transaksi</span>
+                            <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                         </button>
                     </form>
 
@@ -90,3 +91,17 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        function disableSubmitButton() {
+            const submitButton = document.getElementById('submit-btn');
+            const spinner = document.getElementById('loading-spinner');
+            const buttonText = document.getElementById('button-text');
+
+            submitButton.disabled = true;  // Nonaktifkan tombol
+            spinner.style.display = 'inline-block';  // Tampilkan spinner
+            buttonText.textContent = 'Menyimpan...';  // Ubah teks tombol
+        }
+    </script>
+@endpush

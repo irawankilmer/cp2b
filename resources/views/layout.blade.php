@@ -145,8 +145,8 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
-                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
+                    <li class="nav-item {{ setMenuOpen(['account', 'account.create', 'account.edit']) }}">
+                        <a href="#" class="nav-link {{ setActive(['account', 'account.create', 'account.edit']) }}">
                             <i class="nav-icon bi bi-sliders"></i>
                             <p>
                                 Pengaturan
@@ -155,7 +155,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="{{ route('account') }}" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail']) }}">
+                                <a href="{{ route('account') }}" class="nav-link {{ setActive(['account', 'account.create', 'account.edit']) }}">
                                     <i class="nav-icon bi bi-floppy"></i>
                                     <p>Penyimpanan</p>
                                 </a>

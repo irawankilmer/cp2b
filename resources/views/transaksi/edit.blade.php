@@ -23,7 +23,7 @@
         </div>
         <div class="card-body">
 
-          <form method="POST" action="{{ route('transaksi.update', $transaction->id) }}">
+          <form method="POST" action="{{ route('transaksi.update', $transaction->id) }}" onsubmit="disableSubmitButton()">
             @csrf
             @method('PATCH')
 
@@ -86,9 +86,10 @@
               <input type="text" class="form-control" id="descriptions" name="descriptions" value="{{ old('descriptions', $transaction->descriptions) }}">
             </div>
 
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-floppy"></i>
-              Update Transaksi
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <i class="bi bi-pencil-square"></i>
+              <span id="button-text">Edit Transaksi</span>
+              <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
             </button>
           </form>
 
@@ -98,3 +99,17 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+  <script>
+    function disableSubmitButton() {
+      const submitButton = document.getElementById('submit-btn');
+      const spinner = document.getElementById('loading-spinner');
+      const buttonText = document.getElementById('button-text');
+
+      submitButton.disabled = true;
+      spinner.style.display = 'inline-block';
+      buttonText.textContent = 'Update...';
+    }
+  </script>
+@endpush

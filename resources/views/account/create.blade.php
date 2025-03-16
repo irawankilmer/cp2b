@@ -23,7 +23,7 @@
                 </div>
                 <div class="card-body">
 
-                    <form method="POST" action="{{ route('account.store') }}">
+                    <form method="POST" action="{{ route('account.store') }}" onsubmit="disableSubmitButton()">
                         @csrf
                         @error('name')
                         <span class="badge bg-danger">{{ $message }}</span>
@@ -41,9 +41,10 @@
                             <input type="text" class="form-control" id="descriptions" name="descriptions" value="{{ old('descriptions') }}">
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
                             <i class="bi bi-floppy"></i>
-                            Simpan Data
+                            <span id="button-text">Simpan Penyimpanan</span>
+                            <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                         </button>
                     </form>
                 </div>
@@ -52,3 +53,17 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        function disableSubmitButton() {
+            const submitButton = document.getElementById('submit-btn');
+            const spinner = document.getElementById('loading-spinner');
+            const buttonText = document.getElementById('button-text');
+
+            submitButton.disabled = true;
+            spinner.style.display = 'inline-block';
+            buttonText.textContent = 'Menyimpan...';
+        }
+    </script>
+@endpush
