@@ -155,7 +155,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail']) }}">
+                                <a href="{{ route('account') }}" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail']) }}">
                                     <i class="nav-icon bi bi-floppy"></i>
                                     <p>Penyimpanan</p>
                                 </a>

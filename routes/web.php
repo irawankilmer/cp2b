@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
@@ -30,5 +31,14 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/tahunsekarang', 'yearlyReport')->name('tahunsekarang');
         Route::get('/tahunsekarang/{month}/{year}', 'yearlyReportDetail')->name('tahunsekarang.detail');
+    });
+
+    Route::controller(AccountController::class)->group( function() {
+        Route::get('/account', 'index')->name('account');
+        Route::get('/account/create', 'create')->name('account.create');
+        Route::post('/account', 'store')->name('account.store');
+        Route::get('/account/{id}/edit', 'edit')->name('account.edit');
+        Route::patch('/account/{id}', 'update')->name('account.update');
+        Route::delete('/account/{id}', 'destroy')->name('account.destroy');
     });
 });
