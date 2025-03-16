@@ -20,6 +20,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/transaksi', 'index')->name('transaksi');
         Route::get('/transaksi/create', 'create')->name('transaksi.create');
         Route::post('/transaksi', 'store')->name('transaksi.store');
+        Route::get('/transaksi/{id}/edit', 'edit')->name('transaksi.edit');
+        Route::patch('/transaksi/{id}', 'update')->name('transaksi.update');
+        Route::delete('/transaksi/{id}', 'destroy')->name('transaksi.destroy');
 
         Route::get('/transaksi/import', 'import')->name('transaksi.import');
         Route::post('/transaksi/import', 'importstore')->name('transaksi.importStore');

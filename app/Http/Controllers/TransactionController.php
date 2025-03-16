@@ -108,28 +108,148 @@ class TransactionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id): View
     {
-        //
+      $transaction = Transaction::find($id);
+      $accounts = Account::all();
+      $categories = Category::all();
+      return view('transaksi.edit', compact(
+          'transaction',
+          'accounts',
+          'categories'
+      ));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+  public function update(Request $request, $id): RedirectResponse
+  {
+    $validatedData = $request->validate([
+        'date' => 'required|date',
+        'type' => 'required|in:pemasukan,pengeluaran,pindah',
+        'account_id' => 'required|exists:accounts,id',
+        'target_account_id' => 'nullable|exists:accounts,id|required_if:type,pindah',
+        'category_id' => 'required|exists:categories,id',
+        'amount' => 'required|numeric|min:0.01',
+        'descriptions' => 'nullable|string',
+    ]);
+
+    $transaction = Transaction::findOrFail($id);
+    $oldAmount = $transaction->amount;
+    $oldType = $transaction->type;
+    $oldAccountId = $transaction->account_id;
+    $oldTargetAccountId = $transaction->target_account_id;
+
+    // Hitung selisih perubahan jumlah
+    $amountDifference = $validatedData['amount'] - $oldAmount;
+
+    // Update saldo akun asal
+    $balance = Balance::where('account_id', $transaction->account_id)->firstOrFail();
+
+    if ($oldType === 'pemasukan') {
+      $balance->balance -= $oldAmount; // Revert saldo sebelum update
+    } elseif ($oldType === 'pengeluaran' || $oldType === 'pindah') {
+      $balance->balance += $oldAmount;
     }
 
-    /**
+    // Simpan transaksi yang diperbarui
+    $transaction->update(array_merge($validatedData, [
+        'user_id' => auth()->id(),
+    ]));
+
+    // Hitung saldo baru berdasarkan jenis transaksi yang diupdate
+    if ($validatedData['type'] === 'pemasukan') {
+      $balance->balance += $validatedData['amount'];
+    } elseif ($validatedData['type'] === 'pengeluaran' || $validatedData['type'] === 'pindah') {
+      $balance->balance -= $validatedData['amount'];
+    }
+
+    $balance->save();
+
+    // Jika transaksi pindah saldo, update saldo akun tujuan
+    if ($oldType === 'pindah' && $oldTargetAccountId) {
+      $oldTargetBalance = Balance::where('account_id', $oldTargetAccountId)->first();
+      $oldTargetBalance->balance -= $oldAmount; // Revert saldo tujuan sebelum update
+      $oldTargetBalance->save();
+    }
+
+    if ($validatedData['type'] === 'pindah' && $validatedData['target_account_id']) {
+      $targetBalance = Balance::firstOrCreate(
+          ['account_id' => $validatedData['target_account_id']],
+          ['balance' => 0]
+      );
+      $targetBalance->balance += $validatedData['amount'];
+      $targetBalance->save();
+    }
+
+    // Recalculate saldo untuk semua transaksi berikutnya
+    $this->recalculateBalances($transaction->account_id);
+
+    return redirect()->route('transaksi')->with('success', 'Transaksi berhasil diperbarui!');
+  }
+
+  private function recalculateBalances($accountId)
+  {
+    $balance = 0;
+    $transactions = Transaction::where('account_id', $accountId)
+        ->orderBy('date')
+        ->orderBy('created_at')
+        ->get();
+
+    foreach ($transactions as $trx) {
+      if ($trx->type === 'pemasukan') {
+        $balance += $trx->amount;
+      } elseif ($trx->type === 'pengeluaran' || $trx->type === 'pindah') {
+        $balance -= $trx->amount;
+      }
+
+      $trx->update(['balance_after' => $balance]);
+    }
+
+    // Update saldo akun di tabel balances
+    Balance::where('account_id', $accountId)->update(['balance' => $balance]);
+  }
+
+
+  /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+  public function destroy($id): RedirectResponse
+  {
+    $transaction = Transaction::findOrFail($id);
+
+    // Ambil saldo akun asal
+    $balance = Balance::where('account_id', $transaction->account_id)->firstOrFail();
+
+    // Rollback saldo berdasarkan jenis transaksi
+    if ($transaction->type === 'pemasukan') {
+      $balance->balance -= $transaction->amount;
+    } elseif ($transaction->type === 'pengeluaran' || $transaction->type === 'pindah') {
+      $balance->balance += $transaction->amount;
+    }
+    $balance->save();
+
+    // Jika transaksi pindah saldo, rollback saldo akun tujuan
+    if ($transaction->type === 'pindah' && $transaction->target_account_id) {
+      $targetBalance = Balance::where('account_id', $transaction->target_account_id)->first();
+      if ($targetBalance) {
+        $targetBalance->balance -= $transaction->amount;
+        $targetBalance->save();
+      }
     }
 
-    public function import(): View
+    // Hapus transaksi
+    $transaction->delete();
+
+    // Recalculate saldo untuk semua transaksi berikutnya
+    $this->recalculateBalances($transaction->account_id);
+
+    return redirect()->route('transaksi')->with('success', 'Transaksi berhasil dihapus!');
+  }
+
+
+  public function import(): View
     {
         return view('transaksi.import');
     }

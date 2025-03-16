@@ -40,7 +40,7 @@
                     <div class="table-responsive">
                         <table id="transactions-table" class="table table-bordered table-striped">
                             <thead>
-                            <tr>
+                              <tr>
                                 <th>No</th>
                                 <th>Jenis</th>
                                 <th>Akun</th>
@@ -48,19 +48,35 @@
                                 <th>Jumlah</th>
                                 <th>Deskripsi</th>
                                 <th>Saldo Setelah</th>
-                            </tr>
+                                <th>Tindakan</th>
+                              </tr>
                             </thead>
                             <tbody>
                             @foreach($transactions as $transaction)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $transaction->type }}</td>
-                                    <td>{{ $transaction->account->name }}</td>
-                                    <td>{{ $transaction->category->name }}</td>
-                                    <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
-                                    <td>{{ $transaction->descriptions }}</td>
-                                    <td>{{ 'Rp ' . number_format($transaction->balance_after, 2, ',', '.') }}</td>
-                                </tr>
+                              <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $transaction->type }}</td>
+                                <td>{{ $transaction->account->name }}</td>
+                                <td>{{ $transaction->category->name }}</td>
+                                <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
+                                <td>{{ $transaction->descriptions }}</td>
+                                <td>{{ 'Rp ' . number_format($transaction->balance_after, 2, ',', '.') }}</td>
+                                <td>
+                                  <a href="{{ route('transaksi.edit', $transaction['id']) }}" class="btn text-bg-dark btn-sm">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Edit
+                                  </a>
+
+                                  <form id="delete-form-{{ $transaction->id }}" action="{{ route('transaksi.destroy', $transaction->id) }}" method="POST" class="d-inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <a href="#" class="btn btn-rounded btn-danger btn-sm" onclick="confirmDelete({{ $transaction->id }})">
+                                      <i class="bi bi-trash"></i>
+                                      Hapus
+                                    </a>
+                                  </form>
+                                </td>
+                              </tr>
                             @endforeach
                             </tbody>
                         </table>
@@ -83,5 +99,23 @@
         $(document).ready(function() {
             $('#transactions-table').DataTable();
         });
+    </script>
+    <script>
+      function confirmDelete(transactionID) {
+        Swal.fire({
+          title: "Apakah Anda yakin?",
+          text: "Data yang dihapus tidak bisa dikembalikan! Termasuk semua data transaksi yang terhubung",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Ya, hapus!",
+          cancelButtonText: "Batal"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('delete-form-' + transactionID).submit();
+          }
+        });
+      }
     </script>
 @endpush
