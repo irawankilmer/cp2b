@@ -27,5 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::controller(DailyReportController::class)->group( function() {
         Route::get('/bulansekarang', 'sekarang')->name('bulansekarang');
         Route::get('/bulansekarang/{date}', 'detail')->name('bulansekarang.detail');
+
+        Route::get('/tahunsekarang', 'yearlyReport')->name('tahunsekarang');
+        Route::get('/tahunsekarang/{month}/{year}', 'yearlyReportDetail')->name('tahunsekarang.detail');
     });
 });

@@ -115,8 +115,8 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ setMenuOpen(['bulansekarang']) }}">
-                        <a href="#" class="nav-link {{ setActive(['bulansekarang']) }}">
+                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
+                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
                             <i class="nav-icon bi bi-database-fill-gear"></i>
                             <p>
                                 Laporan
@@ -125,19 +125,19 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="{{ route('bulansekarang') }}" class="nav-link {{ setActive(['bulansekarang']) }}">
+                                <a href="{{ route('bulansekarang') }}" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail']) }}">
                                     <i class="nav-icon bi bi-calendar2-day"></i>
                                     <p>Bulan Sekarang</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../index2.html" class="nav-link">
+                                <a href="{{ route('tahunsekarang') }}" class="nav-link {{ setActive(['tahunsekarang', 'tahunsekarang.detail']) }}">
                                     <i class="nav-icon bi bi-calendar2-month"></i>
                                     <p>Tahun Sekarang</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../index3.html" class="nav-link">
+                                <a href="#" class="nav-link">
                                     <i class="nav-icon bi bi-wallet"></i>
                                     <p>Data Tahunan</p>
                                 </a>

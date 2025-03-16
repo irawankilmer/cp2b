@@ -40,7 +40,8 @@
                                     <td>
                                         <a href="{{ route('bulansekarang.detail', ['date' => \Carbon\Carbon::parse(convertToEnglishDate($report['day']))->format('Y-m-d')]) }}">
                                             {{ $report['day'] }}
-                                        </a></td>
+                                        </a>
+                                    </td>
                                     <td>Rp {{ number_format($report['income'], 2, ',', '.') }}</td>
                                     <td>Rp {{ number_format($report['expense'], 2, ',', '.') }}</td>
                                     <td>Rp {{ number_format($report['net_balance'], 2, ',', '.') }}</td>

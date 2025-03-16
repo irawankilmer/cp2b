@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -142,4 +143,163 @@ class DailyReportController extends Controller
         ]);
     }
 
+    public function yearlyReport(): View
+    {
+        $year = Carbon::now()->year;
+
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $transactions = Transaction::whereYear('date', $year)
+            ->selectRaw('
+                MONTH(date) as month,
+                SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+            ')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+        
+        $report = [];
+        
+        foreach ($months as $monthNumber => $monthName) {
+            $transaction = $transactions[$monthNumber] ?? (object) ['total_income' => 0, 'total_expense' => 0];
+        
+            $report[] = [
+                'month' => $monthName . ' ' . $year,
+                'income' => $transaction->total_income,
+                'expense' => $transaction->total_expense,
+                'net_balance' => $transaction->total_income - $transaction->total_expense
+            ];
+        }
+
+        $months = range(1, 12);
+
+        $transactionsGrafic = Transaction::whereYear('date', $year)
+            ->selectRaw('
+                            MONTH(date) as month,
+                            SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                            SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+                        ')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+
+        $incomeData = [];
+        $expenseData = [];
+
+        foreach ($months as $month) {
+            $incomeData[] = $transactionsGrafic[$month]->total_income ?? 0;
+            $expenseData[] = $transactionsGrafic[$month]->total_expense ?? 0;
+        }
+
+        $incomeCategories = Transaction::whereYear('transactions.date', $year)
+            ->where('transactions.type', 'pemasukan')
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as category, SUM(transactions.amount) as total')
+            ->groupBy('categories.name')
+            ->get();
+
+        $expenseCategories = Transaction::whereYear('transactions.date', $year)
+            ->where('transactions.type', 'pengeluaran')
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as category, SUM(transactions.amount) as total')
+            ->groupBy('categories.name')
+            ->get();
+
+        $totals = Transaction::whereYear('date', $year)
+            ->selectRaw('
+                        SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                        SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+                    ')
+            ->first();
+
+        $totalIncome = $totals->total_income ?? 0;
+        $totalExpense = $totals->total_expense ?? 0;
+
+        return view('tahunsekarang.index', compact('report', 'year', 'incomeData', 'expenseData', 'incomeCategories', 'expenseCategories', 'totalIncome', 'totalExpense'));
+    }
+
+    public function yearlyReportDetail($month, $year): View
+    {
+        $currentMonth = $month;
+        $currentYear = $year;
+
+        $bulan = Carbon::create($currentYear, $currentMonth, 1)->translatedFormat('F Y');
+
+        $transactions = Transaction::whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->selectRaw('DATE(date) as day, 
+                     SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                     SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense')
+            ->groupBy('day')
+            ->orderBy('day', 'asc')
+            ->get();
+
+        $totalIncome = $transactions->sum('total_income');
+        $totalExpense = $transactions->sum('total_expense');
+
+        $formattedReports = $transactions->map(function ($report) {
+            return [
+                'day' => Carbon::parse($report->day)->translatedFormat('l, d F Y'),
+                'income' => $report->total_income,
+                'expense' => $report->total_expense,
+                'net_balance' => $report->total_income - $report->total_expense
+            ];
+        });
+
+        // Data untuk grafik pemasukan
+        $chartDataPemasukan = [
+            'labels' => $transactions->pluck('day')->map(fn($date) => Carbon::parse($date)->format('d M'))->toArray(),
+            'income' => $transactions->pluck('total_income')->toArray()
+        ];
+
+        // Data untuk grafik pengeluaran
+        $chartDataPengeluaran = [
+            'labels' => $transactions->pluck('day')->map(fn($date) => Carbon::parse($date)->format('d M'))->toArray(),
+            'expense' => $transactions->pluck('total_expense')->toArray()
+        ];
+
+        $incomeData = Transaction::where('type', 'pemasukan')
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->with('category')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->get();
+
+        $chartDataRincianPemasukan = [
+            'labels' => $incomeData->pluck('category.name'),
+            'data' => $incomeData->pluck('total')
+        ];
+
+        $expenseData = Transaction::where('type', 'pengeluaran')
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->with('category')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->get();
+
+        $chartDataRincianPengeluaran = [
+            'labels' => $expenseData->pluck('category.name'),
+            'data' => $expenseData->pluck('total')
+        ];
+
+        return view('tahunsekarang.detail', compact(
+            'bulan',
+            'formattedReports',
+            'chartDataPemasukan',
+            'chartDataPengeluaran',
+            'chartDataRincianPemasukan',
+            'chartDataRincianPengeluaran',
+            'totalIncome',
+            'totalExpense',
+        ));
+    }
 }
