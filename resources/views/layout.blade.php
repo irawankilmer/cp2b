@@ -117,7 +117,7 @@
 
                     <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
                         <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
-                            <i class="nav-icon bi bi-database-fill-gear"></i>
+                            <i class="nav-icon bi bi-newspaper"></i>
                             <p>
                                 Laporan
                                 <i class="nav-arrow bi bi-chevron-right"></i>
@@ -140,6 +140,42 @@
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon bi bi-wallet"></i>
                                     <p>Data Tahunan</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
+                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
+                            <i class="nav-icon bi bi-sliders"></i>
+                            <p>
+                                Pengaturan
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail']) }}">
+                                    <i class="nav-icon bi bi-floppy"></i>
+                                    <p>Penyimpanan</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link {{ setActive(['tahunsekarang', 'tahunsekarang.detail']) }}">
+                                    <i class="nav-icon bi bi-tags"></i>
+                                    <p>Kategori</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon bi bi-bank"></i>
+                                    <p>Saldo</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon bi bi-database-up"></i>
+                                    <p>Back Up Database</p>
                                 </a>
                             </li>
                         </ul>
