@@ -189,13 +189,23 @@ class TransactionController extends Controller
     return redirect()->route('transaksi')->with('success', 'Transaksi berhasil diperbarui!');
   }
 
-  private function recalculateBalances($accountId)
+  private function recalculateBalances($accountId, $deletedTransactionDate)
   {
-    $balance = 0;
+    $previousTransaction = Transaction::where('account_id', $accountId)
+        ->where('date', '<', $deletedTransactionDate)
+        ->orderBy('date', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $startingBalance = $previousTransaction ? $previousTransaction->balance_after : 0;
+
     $transactions = Transaction::where('account_id', $accountId)
+        ->where('date', '>=', $deletedTransactionDate)
         ->orderBy('date')
         ->orderBy('created_at')
         ->get();
+
+    $balance = $startingBalance;
 
     foreach ($transactions as $trx) {
       if ($trx->type === 'pemasukan') {
@@ -207,9 +217,9 @@ class TransactionController extends Controller
       $trx->update(['balance_after' => $balance]);
     }
 
-    // Update saldo akun di tabel balances
     Balance::where('account_id', $accountId)->update(['balance' => $balance]);
   }
+
 
 
   /**
@@ -218,35 +228,26 @@ class TransactionController extends Controller
   public function destroy($id): RedirectResponse
   {
     $transaction = Transaction::findOrFail($id);
+    $accountId = $transaction->account_id;
+    $transactionDate = $transaction->date;
 
-    // Ambil saldo akun asal
-    $balance = Balance::where('account_id', $transaction->account_id)->firstOrFail();
+    $balance = Balance::where('account_id', $accountId)->firstOrFail();
 
-    // Rollback saldo berdasarkan jenis transaksi
     if ($transaction->type === 'pemasukan') {
       $balance->balance -= $transaction->amount;
     } elseif ($transaction->type === 'pengeluaran' || $transaction->type === 'pindah') {
       $balance->balance += $transaction->amount;
     }
+
     $balance->save();
 
-    // Jika transaksi pindah saldo, rollback saldo akun tujuan
-    if ($transaction->type === 'pindah' && $transaction->target_account_id) {
-      $targetBalance = Balance::where('account_id', $transaction->target_account_id)->first();
-      if ($targetBalance) {
-        $targetBalance->balance -= $transaction->amount;
-        $targetBalance->save();
-      }
-    }
-
-    // Hapus transaksi
     $transaction->delete();
 
-    // Recalculate saldo untuk semua transaksi berikutnya
-    $this->recalculateBalances($transaction->account_id);
+    $this->recalculateBalances($accountId, $transactionDate);
 
     return redirect()->route('transaksi')->with('success', 'Transaksi berhasil dihapus!');
   }
+
 
 
   public function import(): View
