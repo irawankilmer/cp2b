@@ -27,6 +27,7 @@
                             <thead>
                             <tr>
                                 <th>No</th>
+                                <th>Jam</th>
                                 <th>Jenis</th>
                                 <th>Akun</th>
                                 <th>Kategori</th>
@@ -38,6 +39,7 @@
                             @foreach($transactions as $transaction)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $transaction->created_at->format('H:i') . ' WIB' }}</td>
                                     <td>{{ $transaction->type }}</td>
                                     <td>{{ $transaction->account->name }}</td>
                                     <td>{{ $transaction->category->name }}</td>
