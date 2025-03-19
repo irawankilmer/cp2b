@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -118,6 +119,54 @@ class TransactionController extends Controller
           'categories'
       ));
     }
+
+
+  public function update(Request $request, $id): RedirectResponse
+  {
+    $request->validate([
+        'date' => 'required|date',
+        'type' => 'required|in:pemasukan,pengeluaran,pindah',
+        'account_id' => 'required|exists:accounts,id',
+        'category_id' => 'required|exists:categories,id',
+        'target_account_id' => 'nullable|exists:accounts,id',
+        'amount' => 'required|numeric|min:0',
+        'descriptions' => 'nullable|string',
+    ]);
+
+    $transaction = Transaction::findOrFail($id);
+    $oldAmount = $transaction->amount;
+    $oldType = $transaction->type;
+    $oldAccount = $transaction->account_id;
+    $oldTargetAccount = $transaction->target_account_id;
+
+    DB::transaction(function () use ($request, $transaction, $oldAmount, $oldType, $oldAccount, $oldTargetAccount) {
+      // Kembalikan saldo ke keadaan sebelum transaksi lama
+      if ($oldType === 'pemasukan') {
+        Balance::where('account_id', $oldAccount)->decrement('balance', $oldAmount);
+      } elseif ($oldType === 'pengeluaran') {
+        Balance::where('account_id', $oldAccount)->increment('balance', $oldAmount);
+      } elseif ($oldType === 'pindah') {
+        Balance::where('account_id', $oldAccount)->increment('balance', $oldAmount);
+        Balance::where('account_id', $oldTargetAccount)->decrement('balance', $oldAmount);
+      }
+
+      // Perbarui transaksi dengan data baru
+      $transaction->update($request->only(['date', 'type', 'account_id', 'category_id', 'target_account_id', 'amount', 'descriptions']));
+
+      // Perbarui saldo sesuai transaksi baru
+      if ($request->type === 'pemasukan') {
+        Balance::where('account_id', $request->account_id)->increment('balance', $request->amount);
+      } elseif ($request->type === 'pengeluaran') {
+        Balance::where('account_id', $request->account_id)->decrement('balance', $request->amount);
+      } elseif ($request->type === 'pindah') {
+        Balance::where('account_id', $request->account_id)->decrement('balance', $request->amount);
+        Balance::where('account_id', $request->target_account_id)->increment('balance', $request->amount);
+      }
+    });
+
+    return redirect()->route('transaksi')->with('success', 'Transaksi berhasil diperbarui');
+  }
+
 
   public function destroy($id): RedirectResponse
   {
