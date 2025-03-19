@@ -24,12 +24,6 @@
                         <h3 class="card-title">Transaksi Hari Ini: {{ $hari }}</h3>
                       </div>
                       <div class="col-12 col-md-6 text-md-end">
-                        <a href="{{ route('transaksi.import') }}" class="btn btn-primary btn-sm me-2 mb-2 mb-md-0">
-                          <i class="bi bi-upload"></i> Import
-                        </a>
-                        <button class="btn btn-success btn-sm me-2 mb-2 mb-md-0">
-                          <i class="bi bi-download"></i> Export
-                        </button>
                         <a href="{{ route('transaksi.create') }}" class="btn btn-info btn-sm">
                           <i class="bi bi-folder-plus"></i> Tambah
                         </a>

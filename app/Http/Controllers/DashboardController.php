@@ -34,10 +34,24 @@ class DashboardController extends Controller
             'data' => $expenses->pluck('total')->toArray(),
         ];
 
+      $incomes = Transaction::where('type', 'pemasukan')
+          ->with('category')
+          ->selectRaw('category_id, SUM(amount) as total')
+          ->groupBy('category_id')
+          ->get();
+
+      $chartIncomeData = [
+          'labels' => $incomes->pluck('category.name')->toArray(),
+          'data' => $incomes->pluck('total')->toArray(),
+      ];
+
         return view('dashboard', [
             'chartData' => json_encode($chartData),
-            'totalBalance' => $chartData['total'],
             'chartExpenseData' => json_encode($chartExpenseData),
+            'chartIncomeData' => json_encode($chartIncomeData),
+            'totalBalance' => $chartData['total'],
+            'totalIncome' => Transaction::where('type', 'pemasukan')->sum('amount'),
+            'totalExpense' => Transaction::where('type', 'pengeluaran')->sum('amount'),
         ]);
     }
 }
