@@ -15,7 +15,6 @@ class Transaction extends Model
         'amount',
         'descriptions',
         'user_id',
-        'balance_after'
     ];
 
     // Relasi ke akun asal

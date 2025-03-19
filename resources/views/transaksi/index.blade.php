@@ -47,7 +47,6 @@
                                 <th>Kategori</th>
                                 <th>Jumlah</th>
                                 <th>Deskripsi</th>
-                                <th>Saldo Setelah</th>
                                 <th>Tindakan</th>
                               </tr>
                             </thead>
@@ -60,7 +59,6 @@
                                 <td>{{ $transaction->category->name }}</td>
                                 <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
                                 <td>{{ $transaction->descriptions }}</td>
-                                <td>{{ 'Rp ' . number_format($transaction->balance_after, 2, ',', '.') }}</td>
                                 <td>
                                   <a href="{{ route('transaksi.edit', $transaction['id']) }}" class="btn text-bg-dark btn-sm">
                                     <i class="bi bi-pencil-square"></i>
