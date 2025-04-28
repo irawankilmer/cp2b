@@ -161,7 +161,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('category') }}" class="nav-link">
                                     <i class="nav-icon bi bi-tags"></i>
                                     <p>Kategori</p>
                                 </a>

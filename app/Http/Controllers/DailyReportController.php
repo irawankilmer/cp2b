@@ -222,7 +222,16 @@ class DailyReportController extends Controller
         $totalIncome = $totals->total_income ?? 0;
         $totalExpense = $totals->total_expense ?? 0;
 
-        return view('tahunsekarang.index', compact('report', 'year', 'incomeData', 'expenseData', 'incomeCategories', 'expenseCategories', 'totalIncome', 'totalExpense'));
+        return view('tahunsekarang.index', compact(
+            'report',
+            'year',
+            'incomeData',
+            'expenseData',
+            'incomeCategories',
+            'expenseCategories',
+            'totalIncome',
+            'totalExpense'
+        ));
     }
 
     public function yearlyReportDetail($month, $year): View

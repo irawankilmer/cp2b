@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
@@ -43,5 +44,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/account/{id}/edit', 'edit')->name('account.edit');
         Route::patch('/account/{id}', 'update')->name('account.update');
         Route::delete('/account/{id}', 'destroy')->name('account.destroy');
+    });
+
+    Route::controller(CategoryController::class)->group( function() {
+      Route::get('/category', 'index')->name('category');
+      Route::get('/category/create', 'create')->name('category.create');
+      Route::post('/category', 'store')->name('category.store');
+      Route::get('/category/{id}/edit', 'edit')->name('category.edit');
+      Route::patch('/category/{id}', 'update')->name('category.update');
+      Route::delete('/category/{id}', 'destroy')->name('category.destroy');
     });
 });
