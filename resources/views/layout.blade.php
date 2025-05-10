@@ -115,8 +115,8 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
-                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail']) }}">
+                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail', 'tahunan']) }}">
+                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail', 'tahunan']) }}">
                             <i class="nav-icon bi bi-newspaper"></i>
                             <p>
                                 Laporan
@@ -137,9 +137,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('tahunan') }}" class="nav-link {{ setActive(['tahunan']) }}">
                                     <i class="nav-icon bi bi-wallet"></i>
-                                    <p>Data Tahunan</p>
+                                    <p>Tahunan</p>
                                 </a>
                             </li>
                         </ul>

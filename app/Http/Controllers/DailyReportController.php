@@ -311,4 +311,118 @@ class DailyReportController extends Controller
             'totalExpense',
         ));
     }
+
+    public function yearlySummary(): View
+    {
+        $transactions = Transaction::selectRaw('
+                YEAR(date) as year,
+                SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+            ')
+            ->groupBy('year')
+            ->orderByDesc('year')
+            ->get();
+
+        $report = [];
+
+        foreach ($transactions as $transaction) {
+            $report[] = [
+                'year' => $transaction->year,
+                'income' => $transaction->total_income,
+                'expense' => $transaction->total_expense,
+                'net_balance' => $transaction->total_income - $transaction->total_expense
+            ];
+        }
+
+        return view('tahunan.index', compact('report'));
+    }
+
+    public function yearlySummaryDetail($year): View
+    {
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $transactions = Transaction::whereYear('date', $year)
+            ->selectRaw('
+                MONTH(date) as month,
+                SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+            ')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+        
+        $report = [];
+        
+        foreach ($months as $monthNumber => $monthName) {
+            $transaction = $transactions[$monthNumber] ?? (object) ['total_income' => 0, 'total_expense' => 0];
+        
+            $report[] = [
+                'month' => $monthName . ' ' . $year,
+                'income' => $transaction->total_income,
+                'expense' => $transaction->total_expense,
+                'net_balance' => $transaction->total_income - $transaction->total_expense
+            ];
+        }
+
+        $months = range(1, 12);
+
+        $transactionsGrafic = Transaction::whereYear('date', $year)
+            ->selectRaw('
+                            MONTH(date) as month,
+                            SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                            SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+                        ')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
+
+        $incomeData = [];
+        $expenseData = [];
+
+        foreach ($months as $month) {
+            $incomeData[] = $transactionsGrafic[$month]->total_income ?? 0;
+            $expenseData[] = $transactionsGrafic[$month]->total_expense ?? 0;
+        }
+
+        $incomeCategories = Transaction::whereYear('transactions.date', $year)
+            ->where('transactions.type', 'pemasukan')
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as category, SUM(transactions.amount) as total')
+            ->groupBy('categories.name')
+            ->get();
+
+        $expenseCategories = Transaction::whereYear('transactions.date', $year)
+            ->where('transactions.type', 'pengeluaran')
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as category, SUM(transactions.amount) as total')
+            ->groupBy('categories.name')
+            ->get();
+
+        $totals = Transaction::whereYear('date', $year)
+            ->selectRaw('
+                        SUM(CASE WHEN type = "pemasukan" THEN amount ELSE 0 END) as total_income,
+                        SUM(CASE WHEN type = "pengeluaran" THEN amount ELSE 0 END) as total_expense
+                    ')
+            ->first();
+
+        $totalIncome = $totals->total_income ?? 0;
+        $totalExpense = $totals->total_expense ?? 0;
+
+        return view('tahunsekarang.index', compact(
+            'report',
+            'year',
+            'incomeData',
+            'expenseData',
+            'incomeCategories',
+            'expenseCategories',
+            'totalIncome',
+            'totalExpense'
+        ));
+    }
 }

@@ -35,6 +35,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/tahunsekarang', 'yearlyReport')->name('tahunsekarang');
         Route::get('/tahunsekarang/{month}/{year}', 'yearlyReportDetail')->name('tahunsekarang.detail');
+
+        Route::get('/tahunan', 'yearlySummary')->name('tahunan');
+        Route::get('/tahunan/{year}', 'yearlySummaryDetail')->name('tahunan.detail');
     });
 
     Route::controller(AccountController::class)->group( function() {
