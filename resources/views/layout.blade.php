@@ -145,8 +145,8 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item {{ setMenuOpen(['account', 'account.create', 'account.edit']) }}">
-                        <a href="#" class="nav-link {{ setActive(['account', 'account.create', 'account.edit']) }}">
+                    <li class="nav-item {{ setMenuOpen(['account', 'account.create', 'account.edit', 'category', 'category.create', 'category.edit']) }}">
+                        <a href="#" class="nav-link {{ setActive(['account', 'account.create', 'account.edit', 'category', 'category.create', 'category.edit']) }}">
                             <i class="nav-icon bi bi-sliders"></i>
                             <p>
                                 Pengaturan
@@ -161,7 +161,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('category') }}" class="nav-link">
+                                <a href="{{ route('category') }}" class="nav-link {{ setActive(['category', 'category.create', 'category.edit']) }}">
                                     <i class="nav-icon bi bi-tags"></i>
                                     <p>Kategori</p>
                                 </a>
