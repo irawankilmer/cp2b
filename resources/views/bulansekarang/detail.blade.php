@@ -33,6 +33,7 @@
                                 <th>Kategori</th>
                                 <th>Jumlah</th>
                                 <th>Deskripsi</th>
+                                <th>Tindakan</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -45,6 +46,7 @@
                                     <td>{{ $transaction->category->name }}</td>
                                     <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
                                     <td>{{ $transaction->descriptions }}</td>
+                                    <td>Edit | Hapus</td>
                                 </tr>
                             @endforeach
                             </tbody>
