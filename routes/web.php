@@ -57,4 +57,9 @@ Route::middleware(['auth'])->group(function () {
       Route::patch('/category/{id}', 'update')->name('category.update');
       Route::delete('/category/{id}', 'destroy')->name('category.destroy');
     });
+
+
+    Route::controller(\App\Http\Controllers\ChartDetailController::class)->group(function () {
+      Route::get('/chart-detail/{type}/{id}', 'show')->name('chart.detail');
+    });
 });
