@@ -3,26 +3,26 @@
 @section('title', 'Detail Grafik')
 
 @section('breadcumb')
-  <div class="row">
-    <div class="col-sm-6"><h3 class="mb-0">Detail: {{ ucfirst($type) }} - {{ $name }}</h3></div>
-    <div class="col-sm-6">
-      <ol class="breadcrumb float-sm-end">
-        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Detail Grafik</li>
-      </ol>
-    </div>
+<div class="row">
+  <div class="col-sm-6"><h3 class="mb-0">Detail: {{ ucfirst($type) }} - {{ $name }}</h3></div>
+  <div class="col-sm-6">
+    <ol class="breadcrumb float-sm-end">
+      <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Detail Grafik</li>
+    </ol>
   </div>
+</div>
 @endsection
 
 @section('content')
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Daftar Transaksi</h3>
-    </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table id="detailTable" class="table table-bordered table-striped">
-          <thead>
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Daftar Transaksi</h3>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="detailTable" class="table table-bordered table-striped">
+        <thead>
           <tr>
             <th>No</th>
             <th>Tanggal</th>
@@ -32,62 +32,84 @@
             <th>Jumlah</th>
             <th>Deskripsi</th>
           </tr>
-          </thead>
-          <tbody>
+        </thead>
+        <tbody>
           @foreach($transactions as $i => $trx)
-            <tr>
-              <td>{{ $i + 1 }}</td>
-              <td>{{ $trx->date->format('l, d F Y') }}</td>
-              <td>{{ ucfirst($trx->type) }}</td>
-              <td>{{ $trx->account->name ?? '-' }}</td>
-              <td>{{ $trx->category->name ?? '-' }}</td>
-              <td>Rp {{ number_format($trx->amount, 2, ',', '.') }}</td>
-              <td>{{ $trx->descriptions }}</td>
-            </tr>
+          <tr>
+            <td>{{ $i + 1 }}</td>
+            <td>{{ $trx->date->format('l, d F Y') }}</td>
+            <td>{{ ucfirst($trx->type) }}</td>
+            <td>{{ $trx->account->name ?? '-' }}</td>
+            <td>{{ $trx->category->name ?? '-' }}</td>
+            <td>Rp {{ number_format($trx->amount, 2, ',', '.') }}</td>
+            <td>{{ $trx->descriptions }}</td>
+          </tr>
           @endforeach
-          </tbody>
-        </table>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header">
+    <h3 class="card-title">Ringkasan</h3>
+  </div>
+  <div class="card-body">
+    <div class="row text-center">
+      <div class="col-md-6">
+        <h5>Total Pemasukan</h5>
+        <p><strong>Rp {{ number_format($totalIncome, 2, ',', '.') }}</strong></p>
+      </div>
+      <div class="col-md-6">
+        <h5>Total Pengeluaran</h5>
+        <p><strong>Rp {{ number_format($totalExpense, 2, ',', '.') }}</strong></p>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="card mb-3">
-    <div class="card-header">
-      <h3 class="card-title">Ringkasan</h3>
-    </div>
-    <div class="card-body">
-      <div class="row text-center">
-        <div class="col-md-6">
-          <h5>Total Pemasukan</h5>
-          <p><strong>Rp {{ number_format($totalIncome, 2, ',', '.') }}</strong></p>
-        </div>
-        <div class="col-md-6">
-          <h5>Total Pengeluaran</h5>
-          <p><strong>Rp {{ number_format($totalExpense, 2, ',', '.') }}</strong></p>
-        </div>
-      </div>
-    </div>
+<div class="card mb-3">
+  <div class="card-header">
+    <h3 class="card-title">Grafik Transaksi</h3>
   </div>
-
-  <div class="card mb-3">
-    <div class="card-header">
-      <h3 class="card-title">Grafik Transaksi</h3>
-    </div>
-    <div class="card-body">
-      <canvas id="lineChart"></canvas>
-    </div>
+  <div class="card-body">
+    <canvas id="lineChart"></canvas>
   </div>
+</div>
 @endsection
 
+@push('styles')
+  {{-- Tambahkan CSS DataTables --}}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+@endpush
+
 @push('scripts')
+  {{-- Pastikan jQuery dulu baru DataTables --}}
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script>
-    $(document).ready(function() {
-      $('#detailTable').DataTable();
+    $(document).ready(function () {
+      $('#detailTable').DataTable({
+        pageLength: 10,
+        lengthChange: false,
+        ordering: true,
+        language: {
+          paginate: {
+            previous: "Sebelumnya",
+            next: "Berikutnya"
+          },
+          search: "Cari:",
+          info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+          zeroRecords: "Tidak ada data ditemukan"
+        }
+      });
     });
   </script>
+
   <script>
     const chartData = @json($chartData);
 
@@ -103,7 +125,6 @@
             borderColor: 'rgba(75, 192, 192, 1)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             tension: 0.3,
-            fill: false,
             borderWidth: 2
           },
           {
@@ -112,7 +133,6 @@
             borderColor: 'rgba(255, 99, 132, 1)',
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             tension: 0.3,
-            fill: false,
             borderWidth: 2
           }
         ]
@@ -123,7 +143,7 @@
           y: {
             beginAtZero: true,
             ticks: {
-              callback: function(value) {
+              callback: function (value) {
                 return 'Rp ' + value.toLocaleString('id-ID');
               }
             }
@@ -133,4 +153,3 @@
     });
   </script>
 @endpush
-

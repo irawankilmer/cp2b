@@ -16,70 +16,81 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): View
     {
         setlocale(LC_TIME, 'id_ID');
         Carbon::setLocale('id');
-      $tglSekarang = Carbon::now()->format('Y/m/d');
+        $tglSekarang = Carbon::now()->toDateString();
 
         $transactions = Transaction::with('account', 'category', 'user')
-            ->whereDate('date', today())
-            ->orderByDesc('created_at')
+            ->whereDate('date', $tglSekarang);
+
+        if ($request->filled('kategori')) {
+            $kategori = $request->kategori;
+
+            $isAccount = Account::where('name', $kategori)->exists();
+
+            if ($isAccount) {
+                $transactions->whereHas('account', function ($q) use ($kategori) {
+                    $q->where('name', $kategori);
+                });
+            } else {
+                $transactions->whereHas('category', function ($q) use ($kategori) {
+                    $q->where('name', $kategori);
+                });
+            }
+        }
+
+        $transactions = $transactions->orderByDesc('created_at')->get();
+
+        $balances = Balance::with('account')->get();
+        $chartData = [
+            'labels' => $balances->pluck('account.name')->toArray(),
+            'data'   => $balances->pluck('balance')->toArray(),
+            'total'  => $balances->sum('balance')
+        ];
+
+        $incomes = Transaction::where('type', 'pemasukan')
+            ->whereDate('date', $tglSekarang)
+            ->with('category')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
             ->get();
 
-      $balances = Balance::with('account')->get();
+        $chartIncomeData = [
+            'labels' => $incomes->pluck('category.name')->toArray(),
+            'data'   => $incomes->pluck('total')->toArray(),
+        ];
 
-      $chartData = [
-          'labels' => $balances->pluck('account.name')->toArray(),
-          'data' => $balances->pluck('balance')->toArray(),
-          'total' => $balances->sum('balance')
-      ];
+        $salaryCategoryId = Category::where('name', 'gaji')->value('id');
 
-      $incomes = Transaction::where('type', 'pemasukan')
-          ->whereDate('date', $tglSekarang)
-          ->with('category')
-          ->selectRaw('category_id, SUM(amount) as total')
-          ->groupBy('category_id')
-          ->get();
+        $expenses = Transaction::where('type', 'pengeluaran')
+            ->where('category_id', '!=', $salaryCategoryId)
+            ->whereDate('date', $tglSekarang)
+            ->with('category')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->get();
 
-      $chartIncomeData = [
-          'labels' => $incomes->pluck('category.name')->toArray(),
-          'data' => $incomes->pluck('total')->toArray(),
-      ];
-
-      $salaryCategoryId = Category::where('name', 'gaji')->value('id');
-
-      $expenses = Transaction::where('type', 'pengeluaran')
-          ->where('category_id', '!=', $salaryCategoryId)
-          ->whereDate('date', $tglSekarang)
-          ->with('category')
-          ->selectRaw('category_id, SUM(amount) as total')
-          ->groupBy('category_id')
-          ->get();
-
-      $chartExpenseData = [
-          'labels' => $expenses->pluck('category.name')->toArray(),
-          'data' => $expenses->pluck('total')->toArray(),
-      ];
+        $chartExpenseData = [
+            'labels' => $expenses->pluck('category.name')->toArray(),
+            'data'   => $expenses->pluck('total')->toArray(),
+        ];
 
         return view('transaksi.index', [
-            'transactions'  => $transactions,
-            'hari'          => Carbon::now()->translatedFormat('l, d F Y'),
-            'totalBalance' => $chartData['total'],
-            'chartData' => json_encode($chartData),
-            'chartIncomeData' => json_encode($chartIncomeData),
-            'chartExpenseData' => json_encode($chartExpenseData),
-            'totalIncome' => Transaction::where('type', 'pemasukan')->whereDate('date', $tglSekarang)->sum('amount'),
-            'totalExpense' => Transaction::where('type', 'pengeluaran')->whereDate('date', $tglSekarang)->sum('amount'),
+            'transactions'     => $transactions,
+            'hari'             => Carbon::now()->translatedFormat('l, d F Y'),
+            'totalBalance'     => $chartData['total'],
+            'chartData'        => $chartData,
+            'chartIncomeData'  => $chartIncomeData,
+            'chartExpenseData' => $chartExpenseData,
+            'totalIncome'      => Transaction::where('type', 'pemasukan')->whereDate('date', $tglSekarang)->sum('amount'),
+            'totalExpense'     => Transaction::where('type', 'pengeluaran')->whereDate('date', $tglSekarang)->sum('amount'),
+            'kategoriDipilih'  => $request->kategori ?? null,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create(): View
     {
         $accounts = Account::all();
