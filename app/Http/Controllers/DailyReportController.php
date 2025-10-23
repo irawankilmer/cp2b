@@ -12,7 +12,6 @@ class DailyReportController extends Controller
 {
     public function sekarang(): View
     {
-        // data tabel
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
@@ -37,13 +36,11 @@ class DailyReportController extends Controller
             ];
         });
 
-        // Data untuk grafik pemasukan
         $chartDataPemasukan = [
             'labels' => $transactions->pluck('day')->map(fn($date) => Carbon::parse($date)->format('d M'))->toArray(),
             'income' => $transactions->pluck('total_income')->toArray()
         ];
 
-        // Data untuk grafik pengeluaran
         $chartDataPengeluaran = [
             'labels' => $transactions->pluck('day')->map(fn($date) => Carbon::parse($date)->format('d M'))->toArray(),
             'expense' => $transactions->pluck('total_expense')->toArray()
@@ -142,6 +139,75 @@ class DailyReportController extends Controller
             'totalExpense'  => $totalExpense,
         ]);
     }
+
+    public function kategoriBulan(Request $request, $kategori)
+    {
+        $type = $request->query('type', null);
+
+        if ($type === 'expense') $type = 'pengeluaran';
+        elseif ($type === 'income') $type = 'pemasukan';
+        elseif ($type === 'transfer') $type = 'pindah';
+
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $transactions = Transaction::with(['account', 'category', 'user'])
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->whereHas('category', function ($q) use ($kategori) {
+                $q->whereRaw('LOWER(name) = ?', [strtolower($kategori)]);
+            })
+            ->when($type, fn($q) => $q->where('type', $type))
+            ->orderBy('date', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $total = $transactions->sum('amount');
+
+        return view('bulansekarang.kategori', [
+            'kategori' => $kategori,
+            'transactions' => $transactions,
+            'type' => $type,
+            'total' => $total,
+            'month' => Carbon::now()->translatedFormat('F Y'),
+            'context' => 'bulanan',
+        ]);
+    }
+
+    public function kategoriHarian(Request $request, $date, $kategori)
+    {
+        $type = $request->query('type', null);
+
+        $kategoriExist = Category::pluck('name')->map(fn($n) => strtolower($n));
+        if (!$kategoriExist->contains(strtolower($kategori))) {
+            dd([
+                'debug' => 'Kategori tidak ditemukan',
+                'url_kategori' => $kategori,
+                'kategori_yang_ada' => $kategoriExist,
+            ]);
+        }
+
+        $query = Transaction::with(['account', 'category', 'user'])
+            ->whereDate('date', $date)
+            ->whereHas('category', fn($q) => $q->where('name', $kategori));
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        $transactions = $query->orderBy('created_at', 'asc')->get();
+        $total = $transactions->sum('amount');
+
+        return view('bulansekarang.kategori', [
+            'kategori' => $kategori,
+            'transactions' => $transactions,
+            'type' => $type,
+            'total' => $total,
+            'date' => $date,
+            'context' => 'harian',
+        ]);
+    }
+
 
     public function yearlyReport(): View
     {
