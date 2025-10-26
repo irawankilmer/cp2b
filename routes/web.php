@@ -37,7 +37,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/bulansekarang/{date}/kategori/{kategori}', 'kategoriHarian')->name('bulansekarang.detail.kategori');
 
         Route::get('/tahunsekarang', 'yearlyReport')->name('tahunsekarang');
+        Route::get('/tahunsekarang/{year}/kategori/{kategori}', 'kategoriTahun')->name('tahunsekarang.kategori');
         Route::get('/tahunsekarang/{month}/{year}', 'yearlyReportDetail')->name('tahunsekarang.detail');
+        Route::get('/tahunsekarang/{month}/{year}/kategori/{kategori}', 'kategoriBulanTahun')->name('tahunsekarang.kategori.bulanan');
 
         Route::get('/tahunan', 'yearlySummary')->name('tahunan');
         Route::get('/tahunan/{year}', 'yearlySummaryDetail')->name('tahunan.detail');

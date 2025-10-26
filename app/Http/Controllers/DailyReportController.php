@@ -300,6 +300,28 @@ class DailyReportController extends Controller
         ));
     }
 
+    public function kategoriTahun(Request $request, $year, $kategori)
+    {
+        $type = $request->query('type', null);
+
+        $query = Transaction::with(['account','category','user'])
+            ->whereYear('date', $year)
+            ->whereHas('category', fn($q) => $q->where('name', $kategori));
+
+        if ($type) $query->where('type', $type);
+
+        $transactions = $query->orderBy('date', 'asc')->get();
+        $total = $transactions->sum('amount');
+
+        return view('tahunsekarang.kategori', [
+            'kategori' => $kategori,
+            'transactions' => $transactions,
+            'type' => $type,
+            'total' => $total,
+            'year' => $year,
+        ]);
+    }
+
     public function yearlyReportDetail($month, $year): View
     {
         $currentMonth = $month;
@@ -328,13 +350,11 @@ class DailyReportController extends Controller
             ];
         });
 
-        // Data untuk grafik pemasukan
         $chartDataPemasukan = [
             'labels' => $transactions->pluck('day')->map(fn($date) => Carbon::parse($date)->format('d M'))->toArray(),
             'income' => $transactions->pluck('total_income')->toArray()
         ];
 
-        // Data untuk grafik pengeluaran
         $chartDataPengeluaran = [
             'labels' => $transactions->pluck('day')->map(fn($date) => Carbon::parse($date)->format('d M'))->toArray(),
             'expense' => $transactions->pluck('total_expense')->toArray()
@@ -375,6 +395,37 @@ class DailyReportController extends Controller
             'chartDataRincianPengeluaran',
             'totalIncome',
             'totalExpense',
+            'currentMonth',
+            'currentYear'
+        ));
+    }
+
+    public function kategoriBulanTahun($month, $year, $kategori)
+    {
+        $monthNumber = (int) $month;
+        $monthName = Carbon::create()->month($monthNumber)->translatedFormat('F');
+        $type = request()->query('type');
+
+        $query = Transaction::whereMonth('date', $monthNumber)
+            ->whereYear('date', $year)
+            ->whereHas('category', function ($q) use ($kategori) {
+                $q->where('name', $kategori);
+            });
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        $transactions = $query->get();
+        $total = $transactions->sum('amount');
+
+        return view('tahunsekarang.kategori-bulanan', compact(
+            'transactions',
+            'kategori',
+            'monthName',
+            'year',
+            'total',
+            'type'
         ));
     }
 

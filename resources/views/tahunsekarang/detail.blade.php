@@ -16,7 +16,6 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <!-- Default box -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Laporan Bulan: {{ $bulan }} </h3>
@@ -52,7 +51,6 @@
                     </div>
                 </div>
             </div>
-            <!-- /.card -->
         </div>
     </div>
 
@@ -62,7 +60,6 @@
                 <div class="card-header">
                     <h3 class="card-title">Total Pemasukan: Rp {{ number_format($totalIncome, 2, ',', '.') }}</h3>
                 </div>
-
                 <div class="card-body">
                     <canvas id="incomeChart"></canvas>
                 </div>
@@ -74,7 +71,6 @@
                 <div class="card-header">
                     <h3 class="card-title">Total Pengeluaran: Rp {{ number_format($totalExpense, 2, ',', '.') }}</h3>
                 </div>
-
                 <div class="card-body">
                     <canvas id="expenseChart"></canvas>
                 </div>
@@ -99,7 +95,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @push('styles')
@@ -116,9 +111,9 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         const chartData = JSON.parse('{!! json_encode($chartDataPemasukan) !!}');
-
         const ctx = document.getElementById('incomeChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
@@ -136,16 +131,13 @@
             },
             options: {
                 responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                scales: { y: { beginAtZero: true } }
             }
         });
+    </script>
 
+    <script>
         const chartDatae = JSON.parse('{!! json_encode($chartDataPengeluaran) !!}');
-
         const ctxe = document.getElementById('expenseChart').getContext('2d');
         new Chart(ctxe, {
             type: 'line',
@@ -154,8 +146,8 @@
                 datasets: [{
                     label: 'Pengeluaran',
                     data: chartDatae.expense,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.3
@@ -163,20 +155,15 @@
             },
             options: {
                 responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                scales: { y: { beginAtZero: true } }
             }
         });
     </script>
 
     <script>
         const chartDatar = JSON.parse('{!! json_encode($chartDataRincianPemasukan) !!}');
-
         const ctxr = document.getElementById('incomePieChart').getContext('2d');
-        new Chart(ctxr, {
+        const incomePie = new Chart(ctxr, {
             type: 'pie',
             data: {
                 labels: chartDatar.labels,
@@ -193,33 +180,54 @@
                 }]
             },
             options: {
-                responsive: true
+                responsive: true,
+                onClick: function(evt, elements) {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const category = chartDatar.labels[index];
+                        const month = {{ $currentMonth }};
+                        const year = {{ $currentYear }};
+                        const base = "{{ url('/tahunsekarang') }}";
+                        const url = `${base}/${month}/${year}/kategori/${encodeURIComponent(category)}?type=pemasukan`;
+                        window.location.href = url;
+                    }
+                }
             }
         });
     </script>
 
     <script>
         const chartDatare = JSON.parse('{!! json_encode($chartDataRincianPengeluaran) !!}');
-
         const ctxre = document.getElementById('expensePieChart').getContext('2d');
-        new Chart(ctxre, {
+        const expensePie = new Chart(ctxre, {
             type: 'pie',
             data: {
                 labels: chartDatare.labels,
                 datasets: [{
                     data: chartDatare.data,
                     backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(255, 159, 64, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
                         'rgba(75, 192, 192, 0.5)',
                         'rgba(54, 162, 235, 0.5)',
-                        'rgba(255, 206, 86, 0.5)',
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(153, 102, 255, 0.5)',
-                        'rgba(255, 159, 64, 0.5)'
+                        'rgba(153, 102, 255, 0.5)'
                     ]
                 }]
             },
             options: {
-                responsive: true
+                responsive: true,
+                onClick: function(evt, elements) {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const category = chartDatare.labels[index];
+                        const month = {{ $currentMonth }};
+                        const year = {{ $currentYear }};
+                        const base = "{{ url('/tahunsekarang') }}";
+                        const url = `${base}/${month}/${year}/kategori/${encodeURIComponent(category)}?type=pengeluaran`;
+                        window.location.href = url;
+                    }
+                }
             }
         });
     </script>
