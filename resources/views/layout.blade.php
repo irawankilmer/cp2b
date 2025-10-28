@@ -102,21 +102,21 @@
                 >
 
                     <li class="nav-item">
-                        <a href="{{ route('dashboard') }}" class="nav-link {{ setActive(['dashboard']) }}">
+                        <a href="{{ route('dashboard') }}" class="nav-link {{ setActive(['dashboard', 'chart.detail']) }}">
                             <i class="nav-icon bi bi-speedometer"></i>
                             <p>Dashboard</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{ route('transaksi') }}" class="nav-link {{ setActive(['transaksi']) }}">
+                        <a href="{{ route('transaksi') }}" class="nav-link {{ setActive(['transaksi', 'transaksi.edit']) }}">
                             <i class="nav-icon bi bi-cash-coin"></i>
                             <p>Transaksi</p>
                         </a>
                     </li>
 
-                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail', 'tahunan']) }}">
-                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail', 'tahunan']) }}">
+                    <li class="nav-item {{ setMenuOpen(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail', 'tahunan', 'bulansekarang.kategori', 'bulansekarang.detail.kategori', 'tahunsekarang.kategori', 'tahunsekarang.kategori.bulanan', 'tahunan.detail']) }}">
+                        <a href="#" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'tahunsekarang', 'tahunsekarang.detail', 'tahunan', 'bulansekarang.kategori', 'bulansekarang.detail.kategori', 'tahunsekarang.kategori', 'tahunsekarang.kategori.bulanan', 'tahunan.detail']) }}">
                             <i class="nav-icon bi bi-newspaper"></i>
                             <p>
                                 Laporan
@@ -125,19 +125,19 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="{{ route('bulansekarang') }}" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail']) }}">
+                                <a href="{{ route('bulansekarang') }}" class="nav-link {{ setActive(['bulansekarang', 'bulansekarang.detail', 'bulansekarang.kategori', 'bulansekarang.detail.kategori']) }}">
                                     <i class="nav-icon bi bi-calendar2-day"></i>
                                     <p>Bulan Sekarang</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('tahunsekarang') }}" class="nav-link {{ setActive(['tahunsekarang', 'tahunsekarang.detail']) }}">
+                                <a href="{{ route('tahunsekarang') }}" class="nav-link {{ setActive(['tahunsekarang', 'tahunsekarang.detail', 'tahunsekarang.kategori', 'tahunsekarang.kategori.bulanan']) }}">
                                     <i class="nav-icon bi bi-calendar2-month"></i>
                                     <p>Tahun Sekarang</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('tahunan') }}" class="nav-link {{ setActive(['tahunan']) }}">
+                                <a href="{{ route('tahunan') }}" class="nav-link {{ setActive(['tahunan', 'tahunan.detail']) }}">
                                     <i class="nav-icon bi bi-wallet"></i>
                                     <p>Tahunan</p>
                                 </a>
