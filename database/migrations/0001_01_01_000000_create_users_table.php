@@ -1,89 +1,131 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Seeders;
 
-return new class extends Migration
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+
+class DatabaseSeeder extends Seeder
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function run(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        $userId = DB::table('users')->insertGetId([
+            'name'       => 'Irawan Kilmer',
+            'email'      => 'irawankillmer@gmail.com',
+            'password'   => Hash::make('admin123'),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
+        $accounts = [
+            ['name' => 'BCA', 'descriptions' => 'Semua yang ada di rekening BCA'],
+            ['name' => 'DANA', 'descriptions' => 'Semua yang ada di rekening DANA'],
+            ['name' => 'Cash', 'descriptions' => 'Semua yang ada di Cash'],
+        ];
 
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
-        });
+        $accountIds = [];
+        foreach ($accounts as $account) {
+            $accountIds[] = DB::table('accounts')->insertGetId([
+                'name'          => $account['name'],
+                'descriptions'  => $account['descriptions'],
+                'created_at'    => now(),
+                'updated_at'    => now()
+            ]);
+        }
 
-        Schema::create('accounts', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->text('descriptions')->nullable();
-            $table->timestamps();
-        });
+        $categories = [
+            ["name" => "Kebutuhan Rumah Tangga", "type" => "pengeluaran", "descriptions" => "Baju, alat elektronik, barang lainnya"],
+            ["name" => "Dapur", "type" => "pengeluaran", "descriptions" => "Kebutuhan dapur dan alat-alatnya"],
+            ["name" => "Jajan Barudak", "type" => "pengeluaran", "descriptions" => "Jajan anak-anak dan ibunya"],
+            ["name" => "Transportasi", "type" => "pengeluaran", "descriptions" => "Bensin dan biaya bepergian"],
+            ["name" => "Tagihan Bulanan", "type" => "pengeluaran", "descriptions" => "Listrik, pulsa, dan langganan"],
+            ["name" => "Istri", "type" => "pengeluaran", "descriptions" => "Pengeluaran istri seperti jajan, skincare, dll"],
+            ["name" => "Suami", "type" => "pengeluaran", "descriptions" => "Pengeluaran suami seperti rokok, kopi, makan kerja"],
+            ["name" => "Gaji", "type" => "pemasukan", "descriptions" => "Pemasukan rutin bulanan"],
+            ["name" => "Luar Gaji", "type" => "pemasukan", "descriptions" => "Pendapatan di luar gaji tetap"],
+            ["name" => "Pendidikan", "type" => "pengeluaran", "descriptions" => "Biaya sekolah anak, buku, dan les"],
+            ["name" => "Pindah", "type" => "pindah", "descriptions" => "Perpindahan uang antar akun"],
+            ["name" => "Lainnya", "type" => "pengeluaran", "descriptions" => "Pengeluaran tidak terduga"],
+        ];
 
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->enum('type', ['pemasukan', 'pengeluaran', 'pindah'])->default('pengeluaran');
-            $table->text('descriptions')->nullable();
-            $table->timestamps();
-        });
+        $categoryIds = [];
+        foreach ($categories as $category) {
+            $categoryIds[$category['type']][] = DB::table('categories')->insertGetId([
+                'name'          => $category['name'],
+                'type'          => $category['type'],
+                'descriptions'  => $category['descriptions'],
+                'created_at'    => now(),
+                'updated_at'    => now()
+            ]);
+        }
 
-        Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
-            $table->date('date');
-            $table->enum('type', ['pemasukan', 'pengeluaran', 'pindah'])->default('pengeluaran');
-            $table->foreignId('account_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('target_account_id')->nullable()->constrained('accounts')->onDelete('cascade')->onUpdate('cascade');
-            $table->decimal('amount', 15, 2);
-            $table->string('descriptions')->nullable();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->decimal('balance_after', 15, 2);
-            $table->timestamps();
-        });
+        foreach ($accountIds as $accId) {
+            DB::table('balances')->insert([
+                'account_id' => $accId,
+                'balance' => 0,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
 
-        Schema::create('balances', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('account_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->decimal('balance', 15, 2);
-            $table->timestamps();
-        });
+        $faker = \Faker\Factory::create('id_ID');
+        $transactions = [];
+
+        for ($i = 0; $i < 100; $i++) {
+            $typeChance = rand(1, 100);
+
+            if ($typeChance <= 50) {
+                $type = 'pengeluaran';
+                $catId = $faker->randomElement($categoryIds['pengeluaran']);
+                $amount = $faker->numberBetween(20000, 500000);
+            } elseif ($typeChance <= 85) {
+                $type = 'pemasukan';
+                $catId = $faker->randomElement($categoryIds['pemasukan']);
+                $amount = $faker->numberBetween(300000, 2000000);
+            } else {
+                $type = 'pindah';
+                $catId = $faker->randomElement($categoryIds['pindah']);
+                $amount = $faker->numberBetween(50000, 500000);
+            }
+
+            $account = $faker->randomElement($accountIds);
+            $target = ($type == 'pindah')
+                ? $faker->randomElement(array_diff($accountIds, [$account]))
+                : null;
+
+            $transactions[] = [
+                'date'           => Carbon::now()->subDays(rand(0, 90)),
+                'type'           => $type,
+                'account_id'     => $account,
+                'category_id'    => $catId,
+                'target_account_id' => $target,
+                'amount'         => $amount,
+                'descriptions'   => $faker->sentence(),
+                'user_id'        => $userId,
+                'balance_after'  => $amount,
+                'created_at'     => now(),
+                'updated_at'     => now()
+            ];
+        }
+
+        DB::table('transactions')->insert($transactions);
+
+        foreach ($accountIds as $accId) {
+            $totalIncome = DB::table('transactions')->where('account_id', $accId)->where('type', 'pemasukan')->sum('amount');
+            $totalExpense = DB::table('transactions')->where('account_id', $accId)->where('type', 'pengeluaran')->sum('amount');
+            $totalMoveIn = DB::table('transactions')->where('target_account_id', $accId)->where('type', 'pindah')->sum('amount');
+            $totalMoveOut = DB::table('transactions')->where('account_id', $accId)->where('type', 'pindah')->sum('amount');
+
+            $balance = $totalIncome + $totalMoveIn - $totalExpense - $totalMoveOut;
+
+            DB::table('balances')->where('account_id', $accId)->update([
+                'balance' => $balance,
+                'updated_at' => now()
+            ]);
+        }
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('accounts');
-        Schema::dropIfExists('categories');
-        Schema::dropIfExists('transactions');
-        Schema::dropIfExists('balances');
-    }
-};
+}
