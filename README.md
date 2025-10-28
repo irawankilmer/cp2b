@@ -31,11 +31,10 @@ cd cp2b
 
 ### Install Dependency
 
-Pastikan kamu sudah menginstal **Composer** dan **Node.js**, kemudian jalankan:
+Pastikan kamu sudah menginstal **Composer**, kemudian jalankan:
 
 ```bash
 composer install
-npm install
 ```
 
 ### Konfigurasi Environment
