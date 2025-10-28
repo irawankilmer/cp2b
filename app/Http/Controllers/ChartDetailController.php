@@ -3,62 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
-use App\Models\Category;
 use App\Models\Account;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class ChartDetailController extends Controller
 {
-  public function show($type, $id)
-  {
-    if ($type === 'category') {
-      $model = Category::findOrFail($id);
-      $transactions = Transaction::where('category_id', $id)
-        ->orderBy('date', 'asc')
-        ->get();
-    } elseif ($type === 'account') {
-      $model = Account::findOrFail($id);
-      $transactions = Transaction::where('account_id', $id)
-        ->orderBy('date', 'asc')
-        ->get();
-    } else {
-      abort(404);
+    public function show($type, $id, Request $request)
+    {
+        $scope = $request->query('scope');
+        $name = '';
+        $transactions = collect();
+
+        if ($scope === 'account') {
+            $account = Account::find($id);
+            $name = $account->name ?? '-';
+            $transactions = Transaction::where('account_id', $id)->get();
+
+        } elseif ($scope === 'income') {
+            $category = Category::find($id);
+            $name = $category->name ?? '-';
+            $transactions = Transaction::where('category_id', $id)
+                ->where('type', 'pemasukan')
+                ->get();
+
+        } elseif ($scope === 'expense') {
+            $category = Category::find($id);
+            $name = $category->name ?? '-';
+            $transactions = Transaction::where('category_id', $id)
+                ->where('type', 'pengeluaran')
+                ->get();
+        }
+
+        $totalIncome = $transactions->where('type', 'pemasukan')->sum('amount');
+        $totalExpense = $transactions->where('type', 'pengeluaran')->sum('amount');
+
+        $chartData = [
+            'labels' => $transactions->pluck('date')->map(fn($d) => $d->format('d M'))->toArray(),
+            'income' => $transactions->where('type', 'pemasukan')->pluck('amount')->toArray(),
+            'expense' => $transactions->where('type', 'pengeluaran')->pluck('amount')->toArray(),
+        ];
+
+        return view('chartdetail.show', compact('transactions', 'totalIncome', 'totalExpense', 'chartData', 'type', 'name'));
     }
-
-    // Hitung total pemasukan & pengeluaran
-    $totalIncome = $transactions->where('type', 'pemasukan')->sum('amount');
-    $totalExpense = $transactions->where('type', 'pengeluaran')->sum('amount');
-
-    // 🔹 Siapkan data line chart
-    // Dikelompokkan berdasarkan tanggal
-    $grouped = $transactions->groupBy(function ($trx) {
-      return $trx->date->format('Y-m-d');
-    });
-
-    $labels = [];
-    $dataIncome = [];
-    $dataExpense = [];
-
-    foreach ($grouped as $date => $trxList) {
-      $labels[] = Carbon::parse($date)->format('d M');
-      $dataIncome[] = (float) $trxList->where('type', 'pemasukan')->sum('amount');
-      $dataExpense[] = (float) $trxList->where('type', 'pengeluaran')->sum('amount');
-    }
-
-    $chartData = [
-      'labels' => $labels,
-      'income' => $dataIncome,
-      'expense' => $dataExpense,
-    ];
-
-    return view('chartdetail.show', [
-      'name' => $model->name,
-      'type' => $type,
-      'transactions' => $transactions,
-      'totalIncome' => $totalIncome,
-      'totalExpense' => $totalExpense,
-      'chartData' => $chartData,
-    ]);
-  }
 }
