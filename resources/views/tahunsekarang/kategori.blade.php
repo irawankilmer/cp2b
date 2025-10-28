@@ -25,7 +25,7 @@
       <table id="kategoriTable" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th>Tanggal</th>
+            <th>Hari & Tanggal</th>
             <th>Kategori</th>
             <th>Akun</th>
             <th>Jumlah</th>
@@ -35,7 +35,7 @@
         <tbody>
           @forelse($transactions as $t)
             <tr>
-              <td>{{ \Carbon\Carbon::parse($t->date)->translatedFormat('d F Y') }}</td>
+              <td>{{ \Carbon\Carbon::parse($t->date)->locale('id')->translatedFormat('l, d F Y') }}</td>
               <td>{{ $t->category->name ?? '-' }}</td>
               <td>{{ $t->account->name ?? '-' }}</td>
               <td>Rp{{ number_format($t->amount, 0, ',', '.') }}</td>

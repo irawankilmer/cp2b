@@ -26,6 +26,7 @@
             <thead>
               <tr>
                 <th>No</th>
+                <th>Hari & Tanggal</th>
                 <th>Jam</th>
                 <th>Jenis</th>
                 <th>Akun</th>
@@ -37,14 +38,20 @@
             </thead>
             <tbody>
               @foreach($transactions as $transaction)
+              @php
+                $tanggalLengkap = \Carbon\Carbon::parse($transaction->date ?? $transaction->created_at)
+                  ->locale('id')
+                  ->translatedFormat('l, d F Y');
+              @endphp
               <tr>
                 <td>{{ $loop->iteration }}</td>
+                <td>{{ $tanggalLengkap }}</td>
                 <td>{{ $transaction->created_at->format('H:i') . ' WIB' }}</td>
-                <td>{{ $transaction->type }}</td>
-                <td>{{ $transaction->account->name }}</td>
-                <td>{{ $transaction->category->name }}</td>
-                <td>{{ 'Rp ' . number_format($transaction->amount, 2, ',', '.') }}</td>
-                <td>{{ $transaction->descriptions }}</td>
+                <td>{{ ucfirst($transaction->type) }}</td>
+                <td>{{ $transaction->account->name ?? '-' }}</td>
+                <td>{{ $transaction->category->name ?? '-' }}</td>
+                <td>{{ 'Rp ' . number_format($transaction->amount, 0, ',', '.') }}</td>
+                <td>{{ $transaction->descriptions ?? '-' }}</td>
                 <td>
                   <a href="{{ route('transaksi.edit', $transaction->id) }}" class="btn btn-sm btn-dark">
                     <i class="bi bi-pencil-square"></i> Edit
@@ -75,7 +82,7 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">Total Pemasukan: Rp {{ number_format($totalIncome, 2, ',', '.') }}</h3>
+        <h3 class="card-title">Total Pemasukan: Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
       </div>
       <div class="card-body">
         <canvas id="incomePieChart"></canvas>
@@ -86,7 +93,7 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">Total Pengeluaran: Rp {{ number_format($totalExpense, 2, ',', '.') }}</h3>
+        <h3 class="card-title">Total Pengeluaran: Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
       </div>
       <div class="card-body">
         <canvas id="expensePieChart"></canvas>
@@ -107,7 +114,16 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  $(document).ready(() => $('#transactions-table').DataTable());
+  $(document).ready(function() {
+    $('#transactions-table').DataTable({
+      pageLength: 10,
+      lengthChange: true,
+      ordering: true,
+      language: {
+        url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json"
+      }
+    });
+  });
 
   function confirmDelete(id) {
     Swal.fire({
@@ -169,9 +185,7 @@
       const index = activePoints[0].index;
       const label = chart.data.labels[index];
       const encodedLabel = encodeURIComponent(label);
-
       const url = `{{ url('/bulansekarang') }}/${currentDate}/kategori/${encodedLabel}?type=${type}`;
-
       window.location.href = url;
     }
   }

@@ -31,6 +31,7 @@
         <thead>
           <tr>
             <th>No</th>
+            <th>Hari & Tanggal</th>
             <th>Jam</th>
             <th>Jenis</th>
             <th>Akun</th>
@@ -41,10 +42,16 @@
         </thead>
         <tbody>
           @forelse ($transactions as $item)
+            @php
+              $tanggal = \Carbon\Carbon::parse($item->date ?? $item->created_at)
+                          ->locale('id')
+                          ->translatedFormat('l, d F Y');
+            @endphp
             <tr>
               <td>{{ $loop->iteration }}</td>
+              <td>{{ $tanggal }}</td>
               <td>{{ \Carbon\Carbon::parse($item->created_at)->format('H:i') }} WIB</td>
-              <td>{{ $item->type }}</td>
+              <td>{{ ucfirst($item->type) }}</td>
               <td>{{ $item->account->name ?? '-' }}</td>
               <td>{{ $item->category->name ?? '-' }}</td>
               <td>Rp{{ number_format($item->amount, 0, ',', '.') }}</td>
@@ -52,7 +59,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center">Tidak ada transaksi</td>
+              <td colspan="8" class="text-center">Tidak ada transaksi</td>
             </tr>
           @endforelse
         </tbody>
@@ -62,11 +69,24 @@
 </div>
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+@endpush
+
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
 <script>
   $(document).ready(function() {
-      $('#kategori-table').DataTable();
+    $('#kategori-table').DataTable({
+      pageLength: 10,
+      lengthChange: true,
+      ordering: true,
+      language: {
+        url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json"
+      }
+    });
   });
 </script>
 @endpush
